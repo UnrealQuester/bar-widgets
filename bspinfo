@@ -1,0 +1,76 @@
+#! /bin/sh
+
+print_usage() {
+cat <<EOF
+Usage: bspinfo [OPTION] [Monitor|Desktop]
+Displays information about the windows, dektops and monitors
+of the current bspwm instance.
+
+Supported options:
+
+  -a, --active
+    Returns with exit status 0 if the given monitor
+    is the currently active one.
+
+  -m, --monitors
+    Print out the names of all monitors.
+
+  -d, --desktops
+    Print out all desktops of the given or currently
+    active monitor. The first character is not part of the name,
+    but rather the status of the desktop like the one returned by
+    bspc control --get-status.
+
+  -w, --windows [-m|-d [MONITOR|DESTOP]]
+    Print out the titles of all windows.
+    -m limits the list to the given or currently active monitor.
+    -d limits the list to the given or currently active desktop.
+EOF
+}
+
+if [[ $# -eq 0 ]]; then
+    print_usage
+    exit 1
+fi
+
+case $1 in
+    -m|--monitors )
+        bspc query -M
+        ;;
+    -d|--desktops )
+        if [ $2 ]; then
+            desktops=`bspc query -D -m $3`
+        else
+            desktops=`bspc query -D`
+        fi
+        status=`bspc control --get-status`
+        echo "$desktops" | while read d; do
+            echo "$status" | grep -o "[FfOoUu]$d"
+        done
+        ;;
+    -w|--windows )
+        if [ $2 ]; then
+            case $2 in
+                -m )
+                    windows=`bspc query -W -m $3`
+                    ;;
+                -d )
+                    windows=`bspc query -W -d $3`
+                    ;;
+                * )
+                    print_usage
+                    exit 1
+                    ;;
+            esac
+        else
+            windows=`bspc query -W`
+        fi
+        echo "$windows"|xargs xtitle
+        ;;
+    -a|--active )
+        bspc control --get-status | grep -q "M$2"
+        ;;
+    -h|--help )
+        print_usage
+        ;;
+esac
