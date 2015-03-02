@@ -22,7 +22,8 @@ Supported options:
     bspc control --get-status.
 
   -w, --windows [-m|-d [MONITOR|DESTOP]]
-    Print out the titles of all windows.
+    Print out the window IDs of all windows.
+    These can be converted to the window titles using xtitle
     -m limits the list to the given or currently active monitor.
     -d limits the list to the given or currently active desktop.
 EOF
@@ -52,10 +53,10 @@ case $1 in
         if [ $2 ]; then
             case $2 in
                 -m )
-                    windows=`bspc query -W -m $3`
+                    bspc query -W -m $3
                     ;;
                 -d )
-                    windows=`bspc query -W -d $3`
+                    bspc query -W -d $3
                     ;;
                 * )
                     print_usage
@@ -63,9 +64,8 @@ case $1 in
                     ;;
             esac
         else
-            windows=`bspc query -W`
+            bspc query -W
         fi
-        echo "$windows"|xargs xtitle
         ;;
     -a|--active )
         bspc control --get-status | grep -q "M$2"
