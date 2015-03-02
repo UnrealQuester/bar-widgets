@@ -21,11 +21,12 @@ Supported options:
     but rather the status of the desktop like the one returned by
     bspc control --get-status.
 
-  -w, --windows [-m|-d [MONITOR|DESTOP]]
+  -w, --windows [-m|-d [MONITOR|DESTOP]|-a]
     Print out the window IDs of all windows.
     These can be converted to the window titles using xtitle
     -m limits the list to the given or currently active monitor.
     -d limits the list to the given or currently active desktop.
+    -a shows the currently focused window
 EOF
 }
 
@@ -57,6 +58,9 @@ case $1 in
                     ;;
                 -d )
                     bspc query -W -d $3
+                    ;;
+                -a )
+                    bspc query -W -w focused
                     ;;
                 * )
                     print_usage
