@@ -1,0 +1,24 @@
+#! /bin/sh
+
+print_usage() {
+cat <<EOF
+Usage: wifi-strength interface
+Displays wifi signal strength in percent.
+EOF
+}
+
+case $1 in
+    -h|--help )
+        print_usage
+        ;;
+    * )
+        iw_output=`/sbin/iwconfig $1 2> /dev/null`
+        status=$?
+        if [ $status -ne 0 ]; then
+            echo "Could not find wireless interface"
+            exit $status
+        fi
+        signal=`echo "$iw_output" | grep "Link Quality" | awk '{print $2}' | sed 's/.*\=//'`
+        signal=$(($((${signal%/*} * 100)) / ${signal#*/}))
+        echo $signal
+esac
