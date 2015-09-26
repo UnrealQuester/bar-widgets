@@ -1,0 +1,74 @@
+#! /bin/sh
+
+print_usage() {
+cat <<EOF
+Usage: memusage FORMAT [OPTIONS]
+Displays current memory usage using the given format string.
+%FREE is replaced by the amount of free memory (exlcuding swap
+but including cached memory)
+%USED is replaced by the amount of memory currently in use
+excluding buffers and cache
+%TOTAL is replaced by the total amount of memory avalable to the
+system (exlcuding swap)
+%PFREE is replaced by the amount of free memory in percent (0-100)
+%PUSED is replaced by the amount of memory used in percent (0-100)
+
+Supported options:
+
+  -k,
+    Display the amount of memory in kilobytes
+
+  -m,
+    Display the amount of memory in megabytes
+
+  -g,
+    Display the amount of memory in gigabytes
+
+  --si,
+    Use power of 1000 instead of 1024
+
+EOF
+}
+
+if [[ $# -eq 0 ]]; then
+    print_usage
+    exit 1
+fi
+
+unit="-b"
+format="$1"
+si=""
+shift
+
+for var in "$@"
+do
+    case $var in
+        -k )
+            unit="-k"
+            ;;
+        -m )
+            unit="-m"
+            ;;
+        -g )
+            unit="-g"
+            ;;
+        --si )
+            si="--si"
+            ;;
+        * )
+            print_usage
+            ;;
+    esac
+done
+mem=(`free $unit $si | awk 'NR==3{printf "%s %s", $3,$4}'`)
+used=${mem[0]}
+free=${mem[1]}
+total=`free $unit $si | awk 'NR==2{printf "%s", $2}'`
+pfree=$((free * 100 / total))
+pused=$((used * 100 / total))
+format=${format//%FREE/$free}
+format=${format//%USED/$used}
+format=${format//%PFREE/$pfree}
+format=${format//%PUSED/$pused}
+format=${format//%TOTAL/$total}
+echo $format
