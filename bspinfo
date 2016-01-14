@@ -45,7 +45,7 @@ case $1 in
         else
             desktops=`bspc query -D`
         fi
-        status=`bspc control --get-status`
+        status=`bspc wm --get-status`
         echo "$desktops" | while read d; do
             echo "$status" | grep -o "[FfOoUu]$d"
         done
@@ -54,13 +54,13 @@ case $1 in
         if [ $2 ]; then
             case $2 in
                 -m )
-                    bspc query -W -m $3
+                    bspc query -N -m $3
                     ;;
                 -d )
-                    bspc query -W -d $3
+                    bspc query -N -d $3
                     ;;
                 -a )
-                    bspc query -W -w focused
+                    bspc query -N -n focused
                     ;;
                 * )
                     print_usage
@@ -68,11 +68,11 @@ case $1 in
                     ;;
             esac
         else
-            bspc query -W
+            bspc query -N
         fi
         ;;
     -a|--active )
-        bspc control --get-status | grep -q "M$2"
+        bspc wm --get-status | grep -q "M$2"
         ;;
     -h|--help )
         print_usage
