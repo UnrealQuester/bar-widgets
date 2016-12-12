@@ -41,9 +41,9 @@ case $1 in
         ;;
     -d|--desktops )
         if [ $2 ]; then
-            desktops=`bspc query -D -m $3`
+            desktops=`bspc query -D -m $3 --names`
         else
-            desktops=`bspc query -D`
+            desktops=`bspc query -D --names`
         fi
         status=`bspc wm --get-status`
         echo "$desktops" | while read d; do
